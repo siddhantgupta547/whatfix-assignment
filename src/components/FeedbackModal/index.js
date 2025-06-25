@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
-export default function FeedbackModal({ pinData, onClose, onSave, open }) {
+export default function FeedbackModal({ pinData, onClose, open, updatePins }) {
   const [feedbackText, setFeedbackText] = useState(pinData?.feedback || '');
   const [savingData, setSavingData] = useState(false);
   const isNewPin = !pinData || !pinData.id;
@@ -24,16 +24,18 @@ export default function FeedbackModal({ pinData, onClose, onSave, open }) {
     setSavingData(true);
     try {
       if (!isNewPin) {
-        await fetch('/api/pins', {
+        const requestBody = {
+          id: pinData?.id,
+          x: pinData?.x,
+          y: pinData?.y,
+          feedback: feedbackText,
+        };
+        const res = await fetch('/api/pins', {
           method: 'Put',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: pinData?.id,
-            x: pinData?.x,
-            y: pinData?.y,
-            feedback: feedbackText,
-          }),
+          body: JSON.stringify(requestBody),
         });
+        updatePins((prev) => prev.set(pinData?.id, requestBody));
         onClose();
       }
     } catch (error) {

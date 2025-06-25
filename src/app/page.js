@@ -1,5 +1,4 @@
 'use client';
-//import { getpins } from '@/prisma-db';
 import styles from './page.module.css';
 import { useCallback, useEffect, useState } from 'react';
 import Pin from '@/components/Pin';
@@ -12,7 +11,11 @@ async function fetchPinsData(setterFn) {
   const res = await fetch('/api/pins');
   const data = await res.json();
   const pins = data?.pins;
-  setterFn(pins);
+  const pinsMap = new Map();
+  pins.forEach((pin) => {
+    pinsMap.set(pin?.id, pin);
+  });
+  setterFn(pinsMap);
 }
 
 async function savePin() {
@@ -33,7 +36,7 @@ async function handleDeleteAllClick() {
 
 export default function Home() {
   //State Variables
-  const [pins, setPins] = useState([]); // Stores all pins fetched
+  const [pins, setPins] = useState(new Map()); // Stores all pins fetched
   const [showModal, setShowModal] = useState(false);
   const [modalPinData, setModalPinData] = useState(null); // Data for the pin currently in modal
 
@@ -47,7 +50,7 @@ export default function Home() {
   // Handler to open modal for an existing pin
   const handlePinClick = useCallback(
     (pinId) => {
-      const pin = pins.find((p) => p.id === pinId);
+      const pin = pins.get(pinId);
       if (pin) {
         setModalPinData(pin);
         setShowModal(true);
@@ -69,26 +72,34 @@ export default function Home() {
     router.push('/');
   }, [router]);
 
+  function renderPins() {
+    const pinsArray = [];
+    pins.forEach((pin) =>
+      pinsArray.push(
+        <Pin
+          key={pin.id}
+          id={pin.id}
+          x={pin.x}
+          y={pin.y}
+          onClick={handlePinClick}
+        />
+      )
+    );
+    return pinsArray;
+  }
+
   return (
     <div className={styles.page}>
       <Header handleDeleteAllClick={handleDeleteAllClick} />
       <main className={styles.main}>
         {/* Render all fetched pins */}
-        {pins?.map((pin) => (
-          <Pin
-            key={pin.id}
-            id={pin.id}
-            x={pin.x}
-            y={pin.y}
-            onClick={handlePinClick}
-          />
-        ))}
+        {renderPins()}
         {/* Feedback Modal */}
         <FeedbackModal
           pinData={modalPinData}
           onClose={handleCloseModal}
-          onSave={() => {}}
           open={showModal && modalPinData}
+          updatePins={setPins}
         />
       </main>
       <footer className={styles.footer}>
