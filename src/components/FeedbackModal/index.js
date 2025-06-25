@@ -12,6 +12,7 @@ import React, { useEffect, useState } from 'react';
 
 export default function FeedbackModal({ pinData, onClose, onSave, open }) {
   const [feedbackText, setFeedbackText] = useState(pinData?.feedback || '');
+  const [savingData, setSavingData] = useState(false);
   const isNewPin = !pinData || !pinData.id;
 
   useEffect(() => {
@@ -20,8 +21,26 @@ export default function FeedbackModal({ pinData, onClose, onSave, open }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.debug('called');
-    onClose();
+    setSavingData(true);
+    try {
+      if (!isNewPin) {
+        await fetch('/api/pins', {
+          method: 'Put',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: pinData?.id,
+            x: pinData?.x,
+            y: pinData?.y,
+            feedback: feedbackText,
+          }),
+        });
+        onClose();
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSavingData(false);
+    }
   };
 
   return (
@@ -64,10 +83,17 @@ export default function FeedbackModal({ pinData, onClose, onSave, open }) {
           type="button"
           onClick={onClose}
           color="error"
+          disabled={savingData}
         >
           Cancel
         </Button>
-        <Button variant="contained" type="submit" color="success">
+        <Button
+          variant="contained"
+          type="submit"
+          color="success"
+          onClick={handleSubmit}
+          disabled={savingData}
+        >
           {isNewPin ? 'Save Feedback' : 'Update Feedback'}
         </Button>
       </DialogActions>
