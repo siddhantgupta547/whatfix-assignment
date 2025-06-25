@@ -1,4 +1,4 @@
-import { addpin, getpins } from '@/prisma-db';
+import { addpin, deletePins, getpins } from '@/prisma-db';
 import { NextResponse } from 'next/server';
 
 export async function GET(request) {
@@ -9,9 +9,14 @@ export async function GET(request) {
 export async function POST(request) {
   const body = await request.json();
   const { x, y, feedback } = body;
-
+  console.debug(x, y, feedback);
   const pin = await addpin(x, y, feedback);
   return NextResponse.json(pin, {
     headers: { 'Content-Type': 'application/json' },
   });
+}
+
+export async function DELETE() {
+  await deletePins();
+  return NextResponse.json({ success: true });
 }

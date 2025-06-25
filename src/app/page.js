@@ -19,6 +19,12 @@ async function savePin() {
   console.debug(data);
 }
 
+async function deleteAllPins() {
+  const res = await fetch('/api/pins', { method: 'Delete' });
+  const data = await res.json();
+  console.debug(data);
+}
+
 export default function Home() {
   useEffect(() => {
     fetchPinsData();
@@ -30,6 +36,7 @@ export default function Home() {
     <div className={styles.page}>
       <main className={styles.main}>
         <button onClick={savePin}>Post call</button>
+        <button onClick={deleteAllPins}>Delete call</button>
       </main>
     </div>
   );

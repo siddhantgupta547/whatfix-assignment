@@ -54,9 +54,15 @@ export async function updatepin(id, x, y, feedback) {
   });
 }
 
-export async function deletepin(id) {
+// export async function deletepin(id) {
+//   await new Promise((resolve) => setTimeout(resolve, 1500));
+//   return prisma.pin.delete({
+//     where: { id },
+//   });
+// }
+
+export async function deletePins() {
   await new Promise((resolve) => setTimeout(resolve, 1500));
-  return prisma.pin.delete({
-    where: { id },
-  });
+  const deletePins = await prisma.pin.deleteMany({});
+  console.log(`Deleted ${deletePins.count} pins.`);
 }
