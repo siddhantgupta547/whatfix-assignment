@@ -6,11 +6,13 @@ import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
 import { fetchPinsData, handleDeleteAllClick } from '@/utils/apiCalls';
 import FeedbackModal from '@/components/FeedbackModal';
-import Pin from '@/components/Pin';
 import Header from '@/components/Header';
+import LoadingOverlay from '@/components/LoadingOverlay';
+import MemoizedPin from '@/components/Pin';
 
 //Function to call fetch Pins API and then put array data into Map and then to pins state
-async function fetchAndSetPins(setterFn) {
+async function fetchAndSetPins(setterFn, loaderFn) {
+  loaderFn(true);
   const data = await fetchPinsData();
   const pins = data?.pins;
   const pinsMap = new Map();
@@ -18,20 +20,22 @@ async function fetchAndSetPins(setterFn) {
     pinsMap.set(pin?.id, pin);
   });
   setterFn(pinsMap);
+  loaderFn(false);
 }
 
 export default function Home() {
   //State Variables
   const [pins, setPins] = useState(new Map()); // Stores all pins fetched
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false); // boolean to show modal
   const [modalPinData, setModalPinData] = useState(null); // Data for the pin currently in modal
+  const [fetchingPins, setFetchingPins] = useState(false); // For loading state when fetching pins
 
   //router instance
   const router = useRouter();
 
   //Effects
   useEffect(() => {
-    fetchAndSetPins(setPins);
+    fetchAndSetPins(setPins, setFetchingPins);
   }, []);
 
   // Handler to open modal for an existing pin
@@ -49,7 +53,7 @@ export default function Home() {
   );
 
   // Close modal and clear URL pinId if present
-  const handleCloseModal = useCallback(() => {
+  function handleCloseModal() {
     setShowModal(false);
 
     setTimeout(() => {
@@ -57,7 +61,7 @@ export default function Home() {
     }, 500);
 
     router.push('/');
-  }, [router]);
+  }
 
   // Handler for clicks anywhere on the page to create a new pin
   const handlePageClick = useCallback(
@@ -79,7 +83,7 @@ export default function Home() {
     const pinsArray = [];
     pins.forEach((pin) =>
       pinsArray.push(
-        <Pin
+        <MemoizedPin
           key={pin.id}
           id={pin.id}
           x={pin.x}
@@ -110,6 +114,7 @@ export default function Home() {
           Click anywhere on the page to leave feedback!
         </Typography>
       </footer>
+      <LoadingOverlay open={fetchingPins} />
     </div>
   );
 }

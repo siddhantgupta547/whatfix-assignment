@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import { IconButton } from '@mui/material';
 
-export default function Pin({ id, x, y, onClick }) {
+const MemoizedPin = memo(function Pin({ id, x, y, onClick }) {
   return (
     <IconButton
       id={`pin-${id}`}
@@ -23,4 +23,6 @@ export default function Pin({ id, x, y, onClick }) {
       <GpsFixedIcon color="primary" />
     </IconButton>
   );
-}
+});
+
+export default MemoizedPin;
