@@ -1,3 +1,4 @@
+import { savePin, updatePin } from '@/utils/apiCalls';
 import {
   Box,
   Button,
@@ -23,24 +24,32 @@ export default function FeedbackModal({ pinData, onClose, open, updatePins }) {
     e.preventDefault();
     setSavingData(true);
     try {
+      const requestBody = {
+        x: pinData?.x,
+        y: pinData?.y,
+        feedback: feedbackText,
+      };
       if (!isNewPin) {
-        const requestBody = {
-          id: pinData?.id,
-          x: pinData?.x,
-          y: pinData?.y,
-          feedback: feedbackText,
-        };
-        const res = await fetch('/api/pins', {
-          method: 'Put',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
-        });
+        requestBody['id'] = pinData?.id;
+        await updatePin(
+          requestBody?.id,
+          requestBody?.x,
+          requestBody?.y,
+          requestBody?.feedback
+        );
         updatePins((prev) => prev.set(pinData?.id, requestBody));
-        onClose();
+      } else {
+        const res = await savePin(pinData?.x, pinData?.y, feedbackText);
+        updatePins((prev) => {
+          const updatedPins = new Map(prev);
+          updatedPins.set(res?.id, res);
+          return updatedPins;
+        });
       }
     } catch (error) {
       console.error(error);
     } finally {
+      onClose();
       setSavingData(false);
     }
   };

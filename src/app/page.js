@@ -1,15 +1,17 @@
 'use client';
-import styles from './page.module.css';
 import { useCallback, useEffect, useState } from 'react';
-import Pin from '@/components/Pin';
-import Header from '@/components/Header';
 import { Typography } from '@mui/material';
-import FeedbackModal from '@/components/FeedbackModal';
 import { useRouter } from 'next/navigation';
 
-async function fetchPinsData(setterFn) {
-  const res = await fetch('/api/pins');
-  const data = await res.json();
+import styles from './page.module.css';
+import { fetchPinsData, handleDeleteAllClick } from '@/utils/apiCalls';
+import FeedbackModal from '@/components/FeedbackModal';
+import Pin from '@/components/Pin';
+import Header from '@/components/Header';
+
+//Function to call fetch Pins API and then put array data into Map and then to pins state
+async function fetchAndSetPins(setterFn) {
+  const data = await fetchPinsData();
   const pins = data?.pins;
   const pinsMap = new Map();
   pins.forEach((pin) => {
@@ -18,33 +20,18 @@ async function fetchPinsData(setterFn) {
   setterFn(pinsMap);
 }
 
-async function savePin() {
-  const res = await fetch('/api/pins', {
-    method: 'Post',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ x: 1, y: 1, feedback: 'Hello' }),
-  });
-  const data = await res.json();
-  console.debug(data);
-}
-
-async function handleDeleteAllClick() {
-  const res = await fetch('/api/pins', { method: 'Delete' });
-  const data = await res.json();
-  console.debug(data);
-}
-
 export default function Home() {
   //State Variables
   const [pins, setPins] = useState(new Map()); // Stores all pins fetched
   const [showModal, setShowModal] = useState(false);
   const [modalPinData, setModalPinData] = useState(null); // Data for the pin currently in modal
 
+  //router instance
   const router = useRouter();
 
   //Effects
   useEffect(() => {
-    fetchPinsData(setPins);
+    fetchAndSetPins(setPins);
   }, []);
 
   // Handler to open modal for an existing pin
@@ -72,6 +59,22 @@ export default function Home() {
     router.push('/');
   }, [router]);
 
+  // Handler for clicks anywhere on the page to create a new pin
+  const handlePageClick = useCallback(
+    (e) => {
+      if (showModal) return; // Don't open modal if another is open or not authenticated
+
+      // Get click coordinates relative to the viewport
+      const x = e.clientX;
+      const y = e.clientY;
+
+      setModalPinData({ x, y, feedback: '' });
+      setShowModal(true);
+    },
+    [showModal]
+  );
+
+  //Function to create an array of React Elements from pins Map
   function renderPins() {
     const pinsArray = [];
     pins.forEach((pin) =>
@@ -91,7 +94,7 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <Header handleDeleteAllClick={handleDeleteAllClick} />
-      <main className={styles.main}>
+      <main className={styles.main} onClick={handlePageClick}>
         {/* Render all fetched pins */}
         {renderPins()}
         {/* Feedback Modal */}
