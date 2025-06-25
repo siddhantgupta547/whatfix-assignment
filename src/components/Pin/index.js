@@ -1,11 +1,12 @@
 import React from 'react';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
+import { IconButton } from '@mui/material';
 
 export default function Pin({ id, x, y, onClick }) {
   return (
-    <div
+    <IconButton
       id={`pin-${id}`}
-      style={{
+      sx={{
         position: 'absolute',
         left: `${x}px`,
         top: `${y}px`,
@@ -20,6 +21,6 @@ export default function Pin({ id, x, y, onClick }) {
       title={'Feedback Pin'}
     >
       <GpsFixedIcon color="primary" />
-    </div>
+    </IconButton>
   );
 }

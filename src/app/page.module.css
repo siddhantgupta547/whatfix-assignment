@@ -1,11 +1,12 @@
-.page {
-  height: 100svh;
+.main {
+  height: 85svh;
+  width: 100%;
+  background-color: wheat;
 }
 
-.main {
+.footer {
+  height: 5svh;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  width: 100%;
 }

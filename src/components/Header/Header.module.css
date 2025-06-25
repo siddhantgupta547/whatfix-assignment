@@ -1,0 +1,12 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  box-shadow: rgba(0, 0, 0, 0.24) 0 0.1875rem 0.5rem;
+  position: sticky;
+  top: 0;
+}
+
+.link {
+  text-decoration: none;
+}

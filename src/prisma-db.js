@@ -6,9 +6,9 @@ const seedPins = async () => {
   if (count === 0) {
     await prisma.pin.createMany({
       data: [
-        { x: 100, y: 500, feedback: 'Feedback 1' },
-        { x: 200, y: 700, feedback: 'Feedback 2' },
-        { x: 400, y: 1000, feedback: 'Feedback 3' },
+        { x: 100, y: 200, feedback: 'Feedback 1' },
+        { x: 200, y: 300, feedback: 'Feedback 2' },
+        { x: 400, y: 400, feedback: 'Feedback 3' },
       ],
     });
   }

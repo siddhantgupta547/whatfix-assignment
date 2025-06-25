@@ -3,6 +3,8 @@
 import styles from './page.module.css';
 import { useEffect, useState } from 'react';
 import Pin from '@/components/Pin';
+import Header from '@/components/Header';
+import { Typography } from '@mui/material';
 
 async function fetchPinsData(setterFn) {
   const res = await fetch('/api/pins');
@@ -21,7 +23,7 @@ async function savePin() {
   console.debug(data);
 }
 
-async function deleteAllPins() {
+async function handleDeleteAllClick() {
   const res = await fetch('/api/pins', { method: 'Delete' });
   const data = await res.json();
   console.debug(data);
@@ -35,12 +37,9 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
+      <Header handleDeleteAllClick={handleDeleteAllClick} />
       <main className={styles.main}>
         {/* <button onClick={savePin}>Post call</button> */}
-        <button onClick={deleteAllPins}>Delete call</button>
-
-        <p>Click anywhere on the page to leave feedback!</p>
-
         {/* Render all fetched pins */}
         {pins?.map((pin) => (
           <Pin
@@ -52,6 +51,11 @@ export default function Home() {
           />
         ))}
       </main>
+      <footer className={styles.footer}>
+        <Typography color="primary">
+          Click anywhere on the page to leave feedback!
+        </Typography>
+      </footer>
     </div>
   );
 }
