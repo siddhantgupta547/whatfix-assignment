@@ -18,14 +18,20 @@ export default function FeedbackModal({
   updatePins,
   containerDimensions,
 }) {
+  //State Variables
   const [feedbackText, setFeedbackText] = useState(pinData?.feedback || '');
   const [savingData, setSavingData] = useState(false);
   const isNewPin = !pinData || !pinData.id;
 
+  //Effects
+  //Sets Feeback in local variable on mount
   useEffect(() => {
     setFeedbackText(pinData?.feedback || '');
   }, [pinData]);
 
+  //Handles Feedback submission
+  //if its a new pin makes a post request
+  //for existing pin with ID makes a put request
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSavingData(true);
@@ -119,7 +125,7 @@ export default function FeedbackModal({
           type="submit"
           color="success"
           onClick={handleSubmit}
-          disabled={savingData || pinData?.feedback === feedbackText}
+          disabled={savingData || pinData?.feedback === feedbackText.trim()}
         >
           {isNewPin ? 'Save Feedback' : 'Update Feedback'}
         </Button>

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 
 import styles from './page.module.css';
-import { fetchPinsData, handleDeleteAllClick } from '@/utils/apiCalls';
+import { fetchPinsData, handleDeleteAllPins } from '@/utils/apiCalls';
 import FeedbackModal from '@/components/FeedbackModal';
 import Header from '@/components/Header';
 import LoadingOverlay from '@/components/LoadingOverlay';
@@ -13,15 +13,33 @@ import MemoizedPin from '@/components/Pin';
 
 //Function to call fetch Pins API and then put array data into Map and then to pins state
 async function fetchAndSetPins(setterFn, loaderFn) {
-  loaderFn(true);
-  const data = await fetchPinsData();
-  const pins = data?.pins;
-  const pinsMap = new Map();
-  pins.forEach((pin) => {
-    pinsMap.set(pin?.id, pin);
-  });
-  setterFn(pinsMap);
-  loaderFn(false);
+  try {
+    loaderFn(true);
+    const data = await fetchPinsData();
+    const pins = data?.pins;
+    const pinsMap = new Map();
+    pins.forEach((pin) => {
+      pinsMap.set(pin?.id, pin);
+    });
+    setterFn(pinsMap);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    loaderFn(false);
+  }
+}
+
+//Function to clear all the pins
+async function handleClearAll(setterFn, loaderFn) {
+  try {
+    loaderFn(true);
+    await handleDeleteAllPins();
+    setterFn(new Map());
+  } catch (error) {
+    console.error(error);
+  } finally {
+    loaderFn(false);
+  }
 }
 
 export default function Home() {
@@ -36,9 +54,12 @@ export default function Home() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  //Refs
   const containerRef = useRef(null);
 
   //Effects
+  //Fetches Data and sets in local state
+  //Adds an Event listener for resizing
   useEffect(() => {
     fetchAndSetPins(setPins, setFetchingPins);
     function updateSize() {
@@ -55,6 +76,7 @@ export default function Home() {
         }, 500);
       };
     }
+    //Debounced handler
     const debouncedUpdateSize = updateSize();
     window.addEventListener('resize', debouncedUpdateSize);
 
@@ -91,7 +113,7 @@ export default function Home() {
     [pins, router]
   );
 
-  // clear URL pinId if present
+  // clear URL pinId if present and Closes Modal
   function handleCloseModal() {
     setTimeout(() => {
       setModalPinData(null);
@@ -135,16 +157,11 @@ export default function Home() {
     return pinsArray;
   }
 
-  async function handleClearAll() {
-    setFetchingPins(true);
-    await handleDeleteAllClick();
-    setPins(new Map());
-    setFetchingPins(false);
-  }
-
   return (
     <div className={styles.page} ref={containerRef}>
-      <Header handleDeleteAllClick={handleClearAll} />
+      <Header
+        handleDeleteAllClick={() => handleClearAll(setPins, setFetchingPins)}
+      />
       <main className={styles.main} onClick={handlePageClick}>
         {/* Render all fetched pins */}
         {renderPins()}
@@ -162,6 +179,7 @@ export default function Home() {
           Click anywhere on the page to leave feedback!
         </Typography>
       </footer>
+      {/* Loader Overlay */}
       <LoadingOverlay open={fetchingPins} />
     </div>
   );

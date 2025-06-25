@@ -6,7 +6,7 @@ export async function fetchPinsData() {
 }
 
 //Function to delete existing pins
-export async function handleDeleteAllClick() {
+export async function handleDeleteAllPins() {
   const res = await fetch('/api/pins', { method: 'Delete' });
   const data = await res.json();
   console.debug(data);
