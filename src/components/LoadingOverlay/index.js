@@ -5,7 +5,7 @@ import React from 'react';
 export default function LoadingOverlay({ open }) {
   return (
     <Backdrop
-      sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+      sx={(theme) => ({ color: '#cbcbcb', zIndex: theme.zIndex.drawer + 1 })}
       open={open}
     >
       <Box

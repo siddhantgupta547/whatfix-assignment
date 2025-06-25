@@ -9,7 +9,6 @@ export async function GET(request) {
 export async function POST(request) {
   const body = await request.json();
   const { x, y, feedback } = body;
-  console.debug(x, y, feedback);
   const pin = await addpin(x, y, feedback);
   return NextResponse.json(pin, {
     headers: { 'Content-Type': 'application/json' },

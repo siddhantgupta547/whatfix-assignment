@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Typography } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
@@ -11,52 +11,79 @@ import Header from '@/components/Header';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import MemoizedPin from '@/components/Pin';
 
+//Function to call fetch Pins API and then put array data into Map and then to pins state
+async function fetchAndSetPins(setterFn, loaderFn) {
+  loaderFn(true);
+  const data = await fetchPinsData();
+  const pins = data?.pins;
+  const pinsMap = new Map();
+  pins.forEach((pin) => {
+    pinsMap.set(pin?.id, pin);
+  });
+  setterFn(pinsMap);
+  loaderFn(false);
+}
+
 export default function Home() {
   //State Variables
   const [pins, setPins] = useState(new Map()); // Stores all pins fetched
   const [showModal, setShowModal] = useState(false); // boolean to show modal
   const [modalPinData, setModalPinData] = useState(null); // Data for the pin currently in modal
   const [fetchingPins, setFetchingPins] = useState(false); // For loading state when fetching pins
+  const [containerDimensions, setContainerDimensions] = useState({});
 
   //router instance
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const containerRef = useRef(null);
+
   //Effects
   useEffect(() => {
-    fetchAndSetPins();
+    fetchAndSetPins(setPins, setFetchingPins);
+    function updateSize() {
+      let clearTimer;
+      const rect = containerRef.current.getBoundingClientRect();
+      setContainerDimensions(rect);
+      return function () {
+        clearTimeout(clearTimer);
+        clearTimer = setTimeout(() => {
+          if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            setContainerDimensions(rect);
+          }
+        }, 500);
+      };
+    }
+    const debouncedUpdateSize = updateSize();
+    window.addEventListener('resize', debouncedUpdateSize);
+
+    return () => window.removeEventListener('resize', debouncedUpdateSize);
   }, []);
 
-  //Function to call fetch Pins API and then put array data into Map and then to pins state
   //Checks for query params in URL
   //if there is a pin ID then that specific modal is mounted
-  async function fetchAndSetPins() {
-    setFetchingPins(true);
-    const data = await fetchPinsData();
-    const pins = data?.pins;
-    const pinsMap = new Map();
-    pins.forEach((pin) => {
-      pinsMap.set(pin?.id, pin);
-    });
-    setPins(pinsMap);
-    setFetchingPins(false);
+  useEffect(() => {
     const pinIdFromUrl = searchParams.get('pinId');
     if (pinIdFromUrl) {
-      const pinToOpen = pinsMap.get(Number(pinIdFromUrl));
+      const pinToOpen = pins.get(Number(pinIdFromUrl));
       if (pinToOpen) {
         setModalPinData(pinToOpen);
         setShowModal(true);
       }
+    } else {
+      setTimeout(() => {
+        setModalPinData(null);
+      }, 100);
+      setShowModal(false);
     }
-  }
+  }, [searchParams, pins]);
 
-  // Handler to open modal for an existing pin
+  // Appends Pin Id to URL
   const handlePinClick = useCallback(
     (pinId) => {
-      const pin = pins.get(pinId);
-      if (pin) {
-        setModalPinData(pin);
-        setShowModal(true);
+      const pinExists = pins.has(pinId);
+      if (pinExists) {
         // Update URL with pinId for shareability
         router.push(`/?pinId=${pinId}`);
       }
@@ -64,15 +91,16 @@ export default function Home() {
     [pins, router]
   );
 
-  // Close modal and clear URL pinId if present
+  // clear URL pinId if present
   function handleCloseModal() {
-    setShowModal(false);
-
     setTimeout(() => {
       setModalPinData(null);
-    }, 500);
-
-    router.push('/');
+    }, 100);
+    setShowModal(false);
+    const pinIdFromUrl = searchParams.get('pinId');
+    if (pinIdFromUrl) {
+      router.push('/');
+    }
   }
 
   // Handler for clicks anywhere on the page to create a new pin
@@ -93,23 +121,30 @@ export default function Home() {
   //Function to create an array of React Elements from pins Map
   function renderPins() {
     const pinsArray = [];
-    pins.forEach((pin) =>
-      pinsArray.push(
+    pins.forEach((pin) => {
+      return pinsArray.push(
         <MemoizedPin
           key={pin.id}
           id={pin.id}
-          x={pin.x}
-          y={pin.y}
+          x={`${pin?.x}%`}
+          y={`${pin?.y}%`}
           onClick={handlePinClick}
         />
-      )
-    );
+      );
+    });
     return pinsArray;
   }
 
+  async function handleClearAll() {
+    setFetchingPins(true);
+    await handleDeleteAllClick();
+    setPins(new Map());
+    setFetchingPins(false);
+  }
+
   return (
-    <div className={styles.page}>
-      <Header handleDeleteAllClick={handleDeleteAllClick} />
+    <div className={styles.page} ref={containerRef}>
+      <Header handleDeleteAllClick={handleClearAll} />
       <main className={styles.main} onClick={handlePageClick}>
         {/* Render all fetched pins */}
         {renderPins()}
@@ -119,6 +154,7 @@ export default function Home() {
           onClose={handleCloseModal}
           open={showModal && modalPinData}
           updatePins={setPins}
+          containerDimensions={containerDimensions}
         />
       </main>
       <footer className={styles.footer}>

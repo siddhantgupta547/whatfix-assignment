@@ -15,7 +15,7 @@ const seedPins = async () => {
 };
 
 // Run seed if needed
-seedPins();
+//seedPins();
 
 export async function getpins(query) {
   await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -53,13 +53,6 @@ export async function updatepin(id, x, y, feedback) {
     data: { x, y, feedback },
   });
 }
-
-// export async function deletepin(id) {
-//   await new Promise((resolve) => setTimeout(resolve, 1500));
-//   return prisma.pin.delete({
-//     where: { id },
-//   });
-// }
 
 export async function deletePins() {
   await new Promise((resolve) => setTimeout(resolve, 1500));

@@ -11,7 +11,13 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
-export default function FeedbackModal({ pinData, onClose, open, updatePins }) {
+export default function FeedbackModal({
+  pinData,
+  onClose,
+  open,
+  updatePins,
+  containerDimensions,
+}) {
   const [feedbackText, setFeedbackText] = useState(pinData?.feedback || '');
   const [savingData, setSavingData] = useState(false);
   const isNewPin = !pinData || !pinData.id;
@@ -20,8 +26,8 @@ export default function FeedbackModal({ pinData, onClose, open, updatePins }) {
     setFeedbackText(pinData?.feedback || '');
   }, [pinData]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setSavingData(true);
     try {
       const requestBody = {
@@ -39,7 +45,15 @@ export default function FeedbackModal({ pinData, onClose, open, updatePins }) {
         );
         updatePins((prev) => prev.set(pinData?.id, requestBody));
       } else {
-        const res = await savePin(pinData?.x, pinData?.y, feedbackText);
+        const x =
+          ((pinData?.x - containerDimensions?.left) /
+            containerDimensions?.width) *
+          100;
+        const y =
+          ((pinData?.y - containerDimensions?.top) /
+            containerDimensions?.height) *
+          100;
+        const res = await savePin(x, y, feedbackText);
         updatePins((prev) => {
           const updatedPins = new Map(prev);
           updatedPins.set(res?.id, res);
@@ -84,8 +98,10 @@ export default function FeedbackModal({ pinData, onClose, open, updatePins }) {
           margin="dense"
           label="Your feedback"
           required
-          onChange={(e) => setFeedbackText(e.target.value)}
+          onChange={(event) => setFeedbackText(event.target.value)}
           placeholder={'Enter your feedback here...'}
+          type="text"
+          maxLength="256"
         />
       </DialogContent>
       <DialogActions>
@@ -103,7 +119,7 @@ export default function FeedbackModal({ pinData, onClose, open, updatePins }) {
           type="submit"
           color="success"
           onClick={handleSubmit}
-          disabled={savingData}
+          disabled={savingData || pinData?.feedback === feedbackText}
         >
           {isNewPin ? 'Save Feedback' : 'Update Feedback'}
         </Button>

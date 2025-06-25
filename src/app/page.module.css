@@ -1,4 +1,6 @@
 .main {
+  min-height: 25rem;
+  min-width: 100rem;
   height: 85svh;
   width: 100%;
   background-color: wheat;
