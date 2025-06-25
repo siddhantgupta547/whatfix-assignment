@@ -1,0 +1,7 @@
+-- CreateTable
+CREATE TABLE "Pin" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "x" INTEGER NOT NULL,
+    "y" INTEGER NOT NULL,
+    "feedback" TEXT NOT NULL
+);

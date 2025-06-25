@@ -1,0 +1,20 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:app.db"
+}
+
+
+model Pin {
+  id          Int      @id @default(autoincrement())
+  x           Int
+  y           Int
+  feedback    String
+}
