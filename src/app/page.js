@@ -1,12 +1,14 @@
 'use client';
 //import { getpins } from '@/prisma-db';
 import styles from './page.module.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import Pin from '@/components/Pin';
 
-async function fetchPinsData() {
+async function fetchPinsData(setterFn) {
   const res = await fetch('/api/pins');
   const data = await res.json();
-  console.debug(data);
+  const pins = data?.pins;
+  setterFn(pins);
 }
 
 async function savePin() {
@@ -26,17 +28,29 @@ async function deleteAllPins() {
 }
 
 export default function Home() {
+  const [pins, setPins] = useState([]); // Stores all pins fetched
   useEffect(() => {
-    fetchPinsData();
+    fetchPinsData(setPins);
   }, []);
-  // const pins = await getpins();
-  // console.debug(pins);
 
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <button onClick={savePin}>Post call</button>
+        {/* <button onClick={savePin}>Post call</button> */}
         <button onClick={deleteAllPins}>Delete call</button>
+
+        <p>Click anywhere on the page to leave feedback!</p>
+
+        {/* Render all fetched pins */}
+        {pins?.map((pin) => (
+          <Pin
+            key={pin.id}
+            id={pin.id}
+            x={pin.x}
+            y={pin.y}
+            onClick={() => {}}
+          />
+        ))}
       </main>
     </div>
   );

@@ -6,16 +6,16 @@ const seedPins = async () => {
   if (count === 0) {
     await prisma.pin.createMany({
       data: [
-        { x: 10000, y: 500, feedback: 'Feedback 1' },
-        { x: 1000, y: 700, feedback: 'Feedback 2' },
-        { x: 4000, y: 1000, feedback: 'Feedback 3' },
+        { x: 100, y: 500, feedback: 'Feedback 1' },
+        { x: 200, y: 700, feedback: 'Feedback 2' },
+        { x: 400, y: 1000, feedback: 'Feedback 3' },
       ],
     });
   }
 };
 
 // Run seed if needed
-//seedPins();
+seedPins();
 
 export async function getpins(query) {
   await new Promise((resolve) => setTimeout(resolve, 1500));
