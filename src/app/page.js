@@ -128,7 +128,7 @@ export default function Home() {
   // Handler for clicks anywhere on the page to create a new pin
   const handlePageClick = useCallback(
     (e) => {
-      if (showModal) return; // Don't open modal if another is open or not authenticated
+      if (showModal) return; // Don't open modal if another is open
 
       // Get click coordinates relative to the viewport
       const x = e.clientX;
@@ -140,7 +140,7 @@ export default function Home() {
     [showModal]
   );
 
-  //Function to create an array of React Elements from pins Map
+  //Function to create an array of React Nodes from pins Map
   function renderPins() {
     const pinsArray = [];
     pins.forEach((pin) => {

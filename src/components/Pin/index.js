@@ -10,7 +10,7 @@ const MemoizedPin = memo(function Pin({ id, x, y, onClick }) {
         position: 'absolute',
         left: x,
         top: y,
-        transform: 'translate(-10%, -10%)',
+        transform: 'translate(-25%, -25%)',
         cursor: 'pointer',
         zIndex: 10,
       }}

@@ -1,6 +1,5 @@
 import { savePin, updatePin } from '@/utils/apiCalls';
 import {
-  Box,
   Button,
   Dialog,
   DialogActions,
@@ -21,7 +20,9 @@ export default function FeedbackModal({
   //State Variables
   const [feedbackText, setFeedbackText] = useState(pinData?.feedback || '');
   const [savingData, setSavingData] = useState(false);
-  const isNewPin = !pinData || !pinData.id;
+
+  //Variable to set if it's a new pin
+  const isNewPin = !Boolean(pinData?.id);
 
   //Effects
   //Sets Feeback in local variable on mount
@@ -33,7 +34,6 @@ export default function FeedbackModal({
   //if its a new pin makes a post request
   //for existing pin with ID makes a put request
   const handleSubmit = async (event) => {
-    event.preventDefault();
     setSavingData(true);
     try {
       const requestBody = {
