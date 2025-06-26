@@ -158,11 +158,15 @@ export default function Home() {
   }
 
   return (
-    <div className={styles.page} ref={containerRef}>
+    <div className={styles.page}>
       <Header
         handleDeleteAllClick={() => handleClearAll(setPins, setFetchingPins)}
       />
-      <main className={styles.main} onClick={handlePageClick}>
+      <main
+        className={styles.main}
+        onClick={handlePageClick}
+        ref={containerRef}
+      >
         {/* Render all fetched pins */}
         {renderPins()}
         {/* Feedback Modal */}

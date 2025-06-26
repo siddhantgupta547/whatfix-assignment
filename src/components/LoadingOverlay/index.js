@@ -16,10 +16,8 @@ export default function LoadingOverlay({ open }) {
           alignItems: 'center',
         }}
       >
-        <LocationSearchingIcon color="primary" fontSize="large" />
-        <Typography color="primary" variant="h5">
-          Fetching Existing Pins
-        </Typography>
+        <LocationSearchingIcon color="inherit" fontSize="large" />
+        <Typography variant="h5">Fetching Existing Pins</Typography>
       </Box>
     </Backdrop>
   );
