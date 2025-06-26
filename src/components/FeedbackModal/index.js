@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   TextField,
 } from '@mui/material';
@@ -91,9 +90,6 @@ export default function FeedbackModal({
         {isNewPin ? 'Add New Feedback' : 'View/Update Feedback'}
       </DialogTitle>
       <DialogContent>
-        <DialogContentText color="textPrimary">
-          <strong>Coordinates</strong>: X: {pinData?.x}, Y: {pinData?.y}
-        </DialogContentText>
         <br />
         <TextField
           autoFocus
