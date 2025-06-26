@@ -48,7 +48,11 @@ export default function FeedbackModal({
           requestBody?.y,
           requestBody?.feedback
         );
-        updatePins((prev) => prev.set(pinData?.id, requestBody));
+        updatePins((prev) => {
+          const updatedPins = new Map(prev);
+          updatedPins.set(pinData?.id, requestBody);
+          return updatedPins;
+        });
       } else {
         const x =
           ((pinData?.x - containerDimensions?.left) /
